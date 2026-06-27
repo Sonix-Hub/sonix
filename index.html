@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e2e; color: #cdd6f4; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #313244; padding: 25px; border-radius: 10px; }
+        h2 { text-align: center; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; background: #1e1e2e; color: #cdd6f4; border: 1px solid #45475a; border-radius: 5px; box-sizing: border-box; }
+        textarea { height: 100px; }
+        button { width: 100%; padding: 12px; margin-top: 20px; background: #89b4fa; color: #1e1e2e; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #74c7ec; }
+        #status { margin-top: 15px; padding: 10px; background: #45475a; border-radius: 5px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Instagram Login Test</h2>
+    <form id="configForm">
+        <label>Target Username</label>
+        <input type="text" id="username" value="target_user" required>
+
+        <label>Wordlist (one password per line)</label>
+        <textarea id="wordlist" placeholder="password1&#10;password2&#10;123456">password1
+password2
+123456</textarea>
+
+        <label>Proxies (one per line, format: http://ip:port)</label>
+        <textarea id="proxies" placeholder="http://1.2.3.4:8080&#10;http://5.6.7.8:3128">http://1.2.3.4:8080</textarea>
+
+        <label>Delay between attempts (seconds)</label>
+        <input type="number" id="delay" value="30" min="10">
+
+        <label>Max attempts before stopping (0 = unlimited)</label>
+        <input type="number" id="maxAttempts" value="0" min="0">
+
+        <button type="submit">Start Attack</button>
+    </form>
+    <div id="status">Waiting for action...</div>
+</div>
+<script>
+    document.getElementById('configForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const status = document.getElementById('status');
+        status.textContent = 'Starting...';
+
+        const payload = {
+            username: document.getElementById('username').value.trim(),
+            wordlist: document.getElementById('wordlist').value.split('\n').filter(p => p.trim() !== ''),
+            proxies: document.getElementById('proxies').value.split('\n').filter(p => p.trim() !== ''),
+            delay: parseInt(document.getElementById('delay').value) || 30,
+            max_attempts: parseInt(document.getElementById('maxAttempts').value) || 0
+        };
+
+        try {
+            const response = await fetch('/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                status.textContent += chunk;
+                status.scrollTop = status.scrollHeight;
+            }
+        } catch (err) {
+            status.textContent = 'Error: ' + err.message;
+        }
+    });
+</script>
+</body>
+</html>
